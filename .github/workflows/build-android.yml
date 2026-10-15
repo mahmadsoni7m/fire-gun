@@ -1,0 +1,33 @@
+name: Build Godot Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: barichello/godot-ci:4.3.0
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Check Godot version and project
+        run: |
+          godot --version
+          mkdir -p build
+
+      - name: Export Android APK
+        run: |
+          godot --headless --path . --editor --quit
+          godot --headless --path . --export-debug "Android" build/SONI-Open-World.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: SONI-Open-World-APK
+          path: build/SONI-Open-World.apk
+          if-no-files-found: error
+          retention-days: 14
